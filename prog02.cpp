@@ -13,20 +13,24 @@ void convertAuthorToUppercase(Book &book);
 void convertAuthorToLowercase(Book &book);
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        cerr << "Usage: " << argv[0] << " <library_file> <member_file>" << endl;
+    if (argc != 5) {
+        cerr << "Usage: " << argv[0] << " <library_input> <library_output> <member_input> <member_output>" << endl;
         return 1;
     }
 
-    string libraryFile = argv[1];
-    string memberFile = argv[2];
+    string libraryInputFile = argv[1];
+    string libraryOutputFile = argv[2];
+    string memberInputFile = argv[3];
+    string memberOutputFile = argv[4];
 
-    vector<Book> library;
-    vector<Member> members;
-    Member *currentMember = nullptr;
+    vector<Book> library; // Dynamically allocated library array
+    vector<Member> members; // Dynamically allocated member array
+    Member *currentMember = nullptr; // Pointer to track the active member
 
-    loadBooksFromFile(libraryFile, library);
-    loadMembersFromFile(memberFile, members);
+    cout << "Loading books from file..." << endl;
+    loadBooksFromFile(libraryInputFile, library);
+    cout << "Loading members from file..." << endl;
+    loadMembersFromFile(memberInputFile, members);
 
     string command;
     while (true) {
@@ -40,8 +44,9 @@ int main(int argc, char *argv[]) {
             Book *book = searchBookByISBN(library, isbn);
             if (book) {
                 currentMember->borrowBook(*book);
+                cout << "Book borrowed successfully." << endl;
             } else {
-                cout << "Book not found in the library." << endl;
+                cout << "Book not found." << endl;
             }
         } else if (command == "return" && currentMember) {
             string isbn;
@@ -52,8 +57,10 @@ int main(int argc, char *argv[]) {
             switchMember(members, currentMember);
         } else if (command == "sortlibrary") {
             sortLibrary(library);
+            cout << "Library sorted by ISBN." << endl;
         } else if (command == "sortmembers") {
             sortMembers(members);
+            cout << "Members sorted by last name." << endl;
         } else if (command == "search") {
             string isbn;
             cout << "Enter ISBN to search: ";
@@ -66,15 +73,17 @@ int main(int argc, char *argv[]) {
             }
         } else if (command == "library") {
             for (const auto &book : library) {
-                cout << book << endl;
+                cout << book.getISBN() << ": " << book << endl;
             }
         } else if (command == "memberlist") {
             for (const auto &member : members) {
                 cout << member << endl;
             }
         } else if (command == "quit") {
-            saveBooksToFile(libraryFile, library);
-            saveMembersToFile(memberFile, members);
+            cout << "Saving books to file..." << endl;
+            saveBooksToFile(libraryOutputFile, library);
+            cout << "Saving members to file..." << endl;
+            saveMembersToFile(memberOutputFile, members);
             break;
         } else {
             cout << "Invalid command or no member selected." << endl;
@@ -83,6 +92,7 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
 
 // Update book details
 void updateBook(Book &book) {
