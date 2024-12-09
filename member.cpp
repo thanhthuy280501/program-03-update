@@ -109,4 +109,25 @@ void saveMembersToFile(const string &filename, const vector<Member> &members) {
     }
     outfile.close();
 }
+void sortMembers(vector<Member> &members) {
+    sort(members.begin(), members.end(), [](const Member &a, const Member &b) {
+        return a.getLastName() < b.getLastName();
+    });
+}
+void switchMember(vector<Member> &members, Member *&currentMember) {
+    string memberID;
+    cout << "Enter Member ID: ";
+    cin >> memberID;
+
+    for (auto &member : members) {
+        if (member.getID() == memberID) {
+            currentMember = &member;
+            cout << "Switched to member: " << member.getFirstName() << " " << member.getLastName() << endl;
+            return;
+        }
+    }
+    cout << "Member ID not found." << endl;
+}
+
+
 
