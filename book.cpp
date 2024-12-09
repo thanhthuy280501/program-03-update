@@ -50,4 +50,10 @@ void sortLibrary(vector<Book> &library) {
         return a.getISBN() < b.getISBN();
     });
 }
+Book *searchBookByISBN(vector<Book> &library, const string &isbn, int index = 0) {
+    if (index >= library.size()) return nullptr;
+    if (library[index].getISBN() == isbn) return &library[index];
+    return searchBookByISBN(library, isbn, index + 1);
+}
+
 
