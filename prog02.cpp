@@ -185,6 +185,45 @@ Book *searchBookByISBN(vector<Book> &library, const string &isbn, int index = 0)
     if (library[index].getISBN() == isbn) return &library[index];
     return searchBookByISBN(library, isbn, index + 1);
 }
+Book* binarySearchByISBN(vector<Book> &library, const string &isbn, int left, int right) {
+    if (left > right) {
+        return nullptr; // Base case: ISBN not found
+    }
+
+    int mid = left + (right - left) / 2; // Calculate mid-point
+
+    if (library[mid].getISBN() == isbn) {
+        return &library[mid]; // ISBN found
+    } else if (library[mid].getISBN() > isbn) {
+        return binarySearchByISBN(library, isbn, left, mid - 1); // Search left half
+    } else {
+        return binarySearchByISBN(library, isbn, mid + 1, right); // Search right half
+    }
+}
+else if (command == "search") {
+    string isbn;
+    cout << "Enter ISBN: ";
+    cin >> isbn;
+
+    if (library.empty()) {
+        cout << "The library is empty. Please add books first." << endl;
+        continue;
+    }
+
+    if (!is_sorted(library.begin(), library.end(), [](const Book &a, const Book &b) {
+        return a.getISBN() < b.getISBN();
+    })) {
+        cout << "Error: Library is not sorted. Please use the sortlibrary command first." << endl;
+        continue;
+    }
+
+    Book* foundBook = binarySearchByISBN(library, isbn, 0, library.size() - 1);
+    if (foundBook) {
+        cout << "Book found: " << *foundBook << endl;
+    } else {
+        cout << "Book not found." << endl;
+    }
+}
 
 
     return 0;
