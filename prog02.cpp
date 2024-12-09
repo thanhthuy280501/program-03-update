@@ -12,155 +12,72 @@ void convertTitleToLowercase(Book &book);
 void convertAuthorToUppercase(Book &book);
 void convertAuthorToLowercase(Book &book);
 
-int main() {
-    // Library dynamic array
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        cerr << "Usage: " << argv[0] << " <library_file> <member_file>" << endl;
+        return 1;
+    }
+
+    string libraryFile = argv[1];
+    string memberFile = argv[2];
+
     vector<Book> library;
+    vector<Member> members;
+    Member *currentMember = nullptr;
 
-    // Initialize with some books
-    library.push_back(Book("Absolute C++", "Walter Savitch", "978-0-13-397078-4", "Pearson"));
-    library.push_back(Book("Effective Java", "Joshua Bloch", "978-0-13-468599-1", "Addison-Wesley"));
-    library.push_back(Book("Clean Code", "Robert C. Martin", "978-0-13-235088-4", "Prentice Hall"));
-    library.push_back(Book("Design Patterns", "Erich Gamma", "978-0-201-63361-0", "Addison-Wesley"));
-
-    // Create a Member object
-    Member member("Xavier", "Charleston", "12345678");
+    loadBooksFromFile(libraryFile, library);
+    loadMembersFromFile(memberFile, members);
 
     string command;
     while (true) {
-        cout << "Enter command (borrow, return, account, newbook, updatebook, titleupper, titlelower, authorupper, authorlower, quit): ";
+        cout << "Enter command (borrow, return, account, newbook, updatebook, titleupper, titlelower, authorupper, authorlower, search, library, memberlist, sortlibrary, sortmembers, switch, quit): ";
         cin >> command;
 
-        if (command == "borrow") {
+        if (command == "borrow" && currentMember) {
             string isbn;
             cout << "Enter ISBN to borrow: ";
             cin >> isbn;
-            bool found = false;
-            for (auto &book : library) {
-                if (book.getISBN() == isbn) {
-                    member.borrowBook(book);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
+            Book *book = searchBookByISBN(library, isbn);
+            if (book) {
+                currentMember->borrowBook(*book);
+            } else {
                 cout << "Book not found in the library." << endl;
             }
-
-        } else if (command == "return") {
+        } else if (command == "return" && currentMember) {
             string isbn;
             cout << "Enter ISBN to return: ";
             cin >> isbn;
-            member.returnBook(isbn);
-
-        } else if (command == "account") {
-            cout << member << endl;
-
-        } else if (command == "newbook") {
-            string title, author, isbn, publisher;
-            cout << "Enter title: ";
-            cin.ignore();
-            getline(cin, title);
-            cout << "Enter author: ";
-            getline(cin, author);
-            cout << "Enter ISBN: ";
-            cin >> isbn;
-            cout << "Enter publisher: ";
-            cin.ignore();
-            getline(cin, publisher);
-
-            library.push_back(Book(title, author, isbn, publisher));
-            cout << "New book added to the library." << endl;
-
-        } else if (command == "updatebook") {
+            currentMember->returnBook(isbn);
+        } else if (command == "switch") {
+            switchMember(members, currentMember);
+        } else if (command == "sortlibrary") {
+            sortLibrary(library);
+        } else if (command == "sortmembers") {
+            sortMembers(members);
+        } else if (command == "search") {
             string isbn;
-            cout << "Enter ISBN of the book to update: ";
+            cout << "Enter ISBN to search: ";
             cin >> isbn;
-
-            bool found = false;
-            for (auto &book : library) {
-                if (book.getISBN() == isbn) {
-                    updateBook(book);
-                    found = true;
-                    break;
-                }
+            Book *book = searchBookByISBN(library, isbn);
+            if (book) {
+                cout << "Book found: " << *book << endl;
+            } else {
+                cout << "Book not found." << endl;
             }
-            if (!found) {
-                cout << "Book not found in the library." << endl;
+        } else if (command == "library") {
+            for (const auto &book : library) {
+                cout << book << endl;
             }
-
-        } else if (command == "titleupper") {
-            string isbn;
-            cout << "Enter ISBN: ";
-            cin >> isbn;
-
-            bool found = false;
-            for (auto &book : library) {
-                if (book.getISBN() == isbn) {
-                    convertTitleToUppercase(book);
-                    found = true;
-                    break;
-                }
+        } else if (command == "memberlist") {
+            for (const auto &member : members) {
+                cout << member << endl;
             }
-            if (!found) {
-                cout << "Book not found in the library." << endl;
-            }
-
-        } else if (command == "titlelower") {
-            string isbn;
-            cout << "Enter ISBN: ";
-            cin >> isbn;
-
-            bool found = false;
-            for (auto &book : library) {
-                if (book.getISBN() == isbn) {
-                    convertTitleToLowercase(book);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                cout << "Book not found in the library." << endl;
-            }
-
-        } else if (command == "authorupper") {
-            string isbn;
-            cout << "Enter ISBN: ";
-            cin >> isbn;
-
-            bool found = false;
-            for (auto &book : library) {
-                if (book.getISBN() == isbn) {
-                    convertAuthorToUppercase(book);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                cout << "Book not found in the library." << endl;
-            }
-
-        } else if (command == "authorlower") {
-            string isbn;
-            cout << "Enter ISBN: ";
-            cin >> isbn;
-
-            bool found = false;
-            for (auto &book : library) {
-                if (book.getISBN() == isbn) {
-                    convertAuthorToLowercase(book);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                cout << "Book not found in the library." << endl;
-            }
-
         } else if (command == "quit") {
+            saveBooksToFile(libraryFile, library);
+            saveMembersToFile(memberFile, members);
             break;
-
         } else {
-            cout << "Invalid command." << endl;
+            cout << "Invalid command or no member selected." << endl;
         }
     }
 
