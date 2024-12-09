@@ -60,3 +60,53 @@ void Member::listBorrowedBooks() const {
 
 void Member::setFirstName(const string &fname) { first_name = fname; }
 void Member::setLastName(const string &lname) { last_name = lname; }
+
+
+void loadMembersFromFile(const string &filename, vector<Member> &members) {
+    ifstream infile(filename);
+    if (!infile.is_open()) {
+        cerr << "Error: Could not open the member file." << endl;
+        return;
+    }
+
+    string fname, lname, id;
+    int count;
+    while (getline(infile, fname) && getline(infile, lname) && getline(infile, id) && infile >> count) {
+        infile.ignore();
+        Member member(fname, lname, id);
+        for (int i = 0; i < count; i++) {
+            string title, author, isbn, publisher;
+            getline(infile, title);
+            getline(infile, author);
+            getline(infile, isbn);
+            getline(infile, publisher);
+            member.borrowBook(Book(title, author, isbn, publisher));
+        }
+        members.push_back(member);
+    }
+    infile.close();
+}
+
+void saveMembersToFile(const string &filename, const vector<Member> &members) {
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr << "Error: Could not open the member file for writing." << endl;
+        return;
+    }
+
+    for (const auto &member : members) {
+        outfile << member.getFirstName() << endl;
+        outfile << member.getLastName() << endl;
+        outfile << member.getID() << endl;
+        outfile << member.getBorrowedCount() << endl;
+
+        member.listBorrowedBooks([&outfile](const Book &book) {
+            outfile << book.getTitle() << endl;
+            outfile << book.getAuthor() << endl;
+            outfile << book.getISBN() << endl;
+            outfile << book.getPublisher() << endl;
+        });
+    }
+    outfile.close();
+}
+
