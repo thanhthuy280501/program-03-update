@@ -224,6 +224,35 @@ void convertAuthorToLowercase(Book &book) {
     book.convertAuthorToLowercase();
     cout << "Updated author to lowercase: " << book.getAuthor() << endl;
 }
+void loadBooksFromFile(const string &filename, vector<Book> &library) {
+    ifstream infile(filename);
+    if (!infile.is_open()) {
+        cerr << "Error: Could not open the book file." << endl;
+        return;
+    }
+
+    string title, author, isbn, publisher;
+    while (getline(infile, title) && getline(infile, author) && getline(infile, isbn) && getline(infile, publisher)) {
+        library.emplace_back(title, author, isbn, publisher);
+    }
+    infile.close();
+}
+
+void saveBooksToFile(const string &filename, const vector<Book> &library) {
+    ofstream outfile(filename);
+    if (!outfile.is_open()) {
+        cerr << "Error: Could not open the book file for writing." << endl;
+        return;
+    }
+
+    for (const auto &book : library) {
+        outfile << book.getTitle() << endl;
+        outfile << book.getAuthor() << endl;
+        outfile << book.getISBN() << endl;
+        outfile << book.getPublisher() << endl;
+    }
+    outfile.close();
+}
 
     return 0;
 }
