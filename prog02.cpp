@@ -253,6 +253,12 @@ void saveBooksToFile(const string &filename, const vector<Book> &library) {
     }
     outfile.close();
 }
+Book *searchBookByISBN(vector<Book> &library, const string &isbn, int index = 0) {
+    if (index >= library.size()) return nullptr;
+    if (library[index].getISBN() == isbn) return &library[index];
+    return searchBookByISBN(library, isbn, index + 1);
+}
+
 
     return 0;
 }
