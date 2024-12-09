@@ -45,3 +45,9 @@ ostream &operator<<(ostream &os, const Book &book) {
        << ", Publisher: " << book.publisher;
     return os;
 }
+void sortLibrary(vector<Book> &library) {
+    sort(library.begin(), library.end(), [](const Book &a, const Book &b) {
+        return a.getISBN() < b.getISBN();
+    });
+}
+
